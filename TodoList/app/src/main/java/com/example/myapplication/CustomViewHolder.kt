@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import android.view.View
 import android.widget.Button
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,7 @@ class CustomViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
     var childView:View
     var modifyBtn: Button
     var deleteBtn: Button
+    var scheduleIcon: ImageView
 
     init {
         cardView = itemView.findViewById(R.id.cardView)
@@ -23,6 +25,7 @@ class CustomViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
         childView = itemView.findViewById(R.id.childView) as View
         modifyBtn = itemView.findViewById(R.id.modifyBtn) as Button
         deleteBtn = itemView.findViewById(R.id.deleteBtn) as Button
+        scheduleIcon = itemView.findViewById(R.id.scheduleImg) as ImageView
     }
 
 }

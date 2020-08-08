@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.adapter_iem_layout.view.*
@@ -24,6 +25,11 @@ class CustomAdapter(internal var context: Context, internal var itemList:ArrayLi
         cardView.date.setText(item.date)
         cardView.period.setText(item.period)
         cardView.toDo.setText(item.toDo)
+        if(item.iconIndex == 0 || item.iconIndex == 2) {cardView.scheduleImg.setImageResource(R.drawable.heart)}
+        else if(item.iconIndex == 3) {cardView.scheduleImg.setImageResource(R.drawable.travel)}
+        else if(item.iconIndex == 4) {cardView.scheduleImg.setImageResource(R.drawable.conference)}
+        else if(item.iconIndex == 5) {cardView.scheduleImg.setImageResource(R.drawable.dinner)}
+        else if(item.iconIndex == 6) {cardView.scheduleImg.setImageResource(R.drawable.book)}
 
         //카드뷰 클릭하면 수정,삭제 버튼 나타나게 하기
         cardView.setOnClickListener{
@@ -68,6 +74,7 @@ class CustomAdapter(internal var context: Context, internal var itemList:ArrayLi
             var date = itemView.findViewById<TextView>(R.id.date)
             var period = itemView.findViewById<TextView>(R.id.period)
             var toDo = itemView.findViewById<TextView>(R.id.toDo)
+            var iconImg = itemView.findViewById<ImageView>(R.id.scheduleImg)
             /*itemView.setOnClickListener {
                 list[adapterPosition].selected = !list[adapterPosition].selected
             }*/

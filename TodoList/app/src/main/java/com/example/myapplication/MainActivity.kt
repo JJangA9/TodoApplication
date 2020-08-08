@@ -10,6 +10,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_main.*
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import org.threeten.bp.LocalDateTime
+import java.util.*
+import kotlin.collections.ArrayList
 
 class MainActivity : AppCompatActivity() {
     internal var androidRecyclerView: RecyclerView? = null
@@ -36,6 +41,23 @@ class MainActivity : AppCompatActivity() {
             Log.d("haha", itemList.toString())
         }
 
+        if(intent.hasExtra("schedule")) {
+            val schedule = intent.getStringExtra("schedule")
+            val selected = intent.getStringExtra("selectedDate")
+            val index = intent.getIntExtra("indexOfIcon", 0)
+
+            //오늘 날짜 가져오기
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
+            val currentDate = sdf.format(Date())
+
+            val startDate = sdf.parse(currentDate)
+            val endDate = sdf.parse(selected)
+            val diff = endDate.time - startDate.time
+            val diffDays = diff / (24 * 60 * 60 * 1000)
+
+            itemList!!.add(CardViewItem("D - " + diffDays, selected, schedule, index))
+        }
+
     }
 
 //    fun removeItem(view: View) {
@@ -44,9 +66,9 @@ class MainActivity : AppCompatActivity() {
 //    }
 
     private fun setValues() {
-        itemList!!.add(CardViewItem("D - 10", "2020-08-27", "데이트하기"))
-        itemList!!.add(CardViewItem("D - 12", "2020-08-29", "시험"))
-        itemList!!.add(CardViewItem("D - 16", "2020-09-02", "헬스장 가기"))
+        itemList!!.add(CardViewItem("D - 10", "2020-08-27", "데이트하기",  0))
+        itemList!!.add(CardViewItem("D - 12", "2020-08-29", "시험", 6))
+        itemList!!.add(CardViewItem("D - 16", "2020-09-02", "헬스장 가기", 5))
     }
 
 //    private fun setRecyclerViewItemTouchListener() {

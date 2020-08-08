@@ -2,11 +2,13 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.animation.AnimationUtils
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_schedule_add.*
+import kotlinx.android.synthetic.main.adapter_iem_layout.*
 import java.text.DateFormat
 import java.util.*
 
@@ -14,7 +16,7 @@ class ScheduleAddActivity : AppCompatActivity() {
 
     private lateinit var calendar: Calendar
     var isOpen = false
-    var position:Int = 0
+    var indexOfIcon:Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +35,7 @@ class ScheduleAddActivity : AppCompatActivity() {
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
 
-        var fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open)
+        val fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open)
         val fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close)
         val fabRClockwise = AnimationUtils.loadAnimation(this, R.anim.rotate_clockwise)
         val fabRAntiClockwise = AnimationUtils.loadAnimation(this, R.anim.rotate_anticlockwise)
@@ -67,24 +69,25 @@ class ScheduleAddActivity : AppCompatActivity() {
             second_icon.setOnClickListener {
                 main_icon.setImageDrawable(getDrawable(R.drawable.heart))
                 //second_icon.setImageDrawable(getDrawable(R.drawable.))
-                position = 2
+                indexOfIcon = 2
             }
             third_icon.setOnClickListener {
                 main_icon.setImageDrawable(getDrawable(R.drawable.travel))
-                position = 3
+                indexOfIcon = 3
             }
             fourth_icon.setOnClickListener {
                 main_icon.setImageDrawable(getDrawable(R.drawable.conference))
-                position = 4
+                indexOfIcon = 4
             }
             fifth_icon.setOnClickListener {
                 main_icon.setImageDrawable(getDrawable(R.drawable.dinner))
-                position = 5
+                indexOfIcon = 5
             }
             sixth_icon.setOnClickListener {
                 main_icon.setImageDrawable(getDrawable(R.drawable.book))
-                position = 6
+                indexOfIcon = 6
             }
+
         }
         //오늘 날짜로 date picker를 초기화
         date_picker.init(
@@ -103,7 +106,12 @@ class ScheduleAddActivity : AppCompatActivity() {
             val schedule = scheduleTxt.getText().toString()
             val selectedDate = formatDate(date_picker.year, date_picker.month, date_picker.dayOfMonth)
 
-            startActivity(Intent(this, MainActivity::class.java))
+            val giveIntent = Intent(this, MainActivity::class.java)
+            giveIntent.putExtra("schedule", schedule)
+            giveIntent.putExtra("selectedDate", selectedDate)
+            giveIntent.putExtra("indexOfIcon", indexOfIcon)
+
+            startActivity(giveIntent)
         }
     }
 
@@ -113,11 +121,12 @@ class ScheduleAddActivity : AppCompatActivity() {
         return true
     }
 
-    private fun formatDate(year:Int, month:Int, day:Int):String {
-        calendar.set(year, month, day, 0, 0, 0)
-        val chosenDate = calendar.time
+    private fun formatDate(year:Int, m:Int, d:Int):String {
+        var month: String = m.toString()
+        var day: String = d.toString()
+        if(month.length == 1) {month = "0" + month}
+        if(day.length == 1) {day = "0" + day}
 
-        val df = DateFormat.getDateInstance(DateFormat.MEDIUM)
-        return df.format(chosenDate)
+        return year.toString() + "-" + month + "-" + day
     }
 }
