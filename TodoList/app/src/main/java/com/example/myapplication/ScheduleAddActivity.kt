@@ -2,14 +2,13 @@ package com.example.myapplication
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.animation.AnimationUtils
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.myapplication.RoomDB.Schedule
+import com.example.myapplication.RoomDB.ScheduleDB
 import kotlinx.android.synthetic.main.activity_schedule_add.*
-import kotlinx.android.synthetic.main.adapter_iem_layout.*
-import java.text.DateFormat
 import java.util.*
 
 class ScheduleAddActivity : AppCompatActivity() {
@@ -17,6 +16,8 @@ class ScheduleAddActivity : AppCompatActivity() {
     private lateinit var calendar: Calendar
     var isOpen = false
     var indexOfIcon:Int = 0
+
+    private var scheduleDB : ScheduleDB? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,6 +35,9 @@ class ScheduleAddActivity : AppCompatActivity() {
         val thisYear = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        scheduleDB = ScheduleDB.getInstance(this)
+
 
         val fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open)
         val fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close)
@@ -103,15 +107,27 @@ class ScheduleAddActivity : AppCompatActivity() {
 
         //저장 버튼 누르면 DB에 일정 저장
         saveBtn.setOnClickListener {
-            val schedule = scheduleTxt.getText().toString()
-            val selectedDate = formatDate(date_picker.year, date_picker.month, date_picker.dayOfMonth)
+            val schedule: String = scheduleTxt.getText().toString()
+            val selectedDate: String = formatDate(date_picker.year, date_picker.month, date_picker.dayOfMonth)
 
-            val giveIntent = Intent(this, MainActivity::class.java)
-            giveIntent.putExtra("schedule", schedule)
-            giveIntent.putExtra("selectedDate", selectedDate)
-            giveIntent.putExtra("indexOfIcon", indexOfIcon)
+            if(schedule == "") { //일정 내용을 입력 안하면 Toast 띄워줌
+                Toast.makeText(this, "일정 내용을 입력해주세요", Toast.LENGTH_SHORT).show()
+            } else {
+                //새로운 schedule 객체 생성
+                val addRunnable = Runnable {
+                    val newSche = Schedule()
+                    newSche.date = selectedDate
+                    newSche.schedule = schedule
+                    newSche.iconIndex = indexOfIcon
+                    scheduleDB?.scheduleDao()?.insert(newSche)
+                }
 
-            startActivity(giveIntent)
+                val addThread = Thread(addRunnable)
+                addThread.start()
+
+                val giveIntent = Intent(this, MainActivity::class.java)
+                startActivity(giveIntent)
+            }
         }
     }
 
@@ -122,11 +138,17 @@ class ScheduleAddActivity : AppCompatActivity() {
     }
 
     private fun formatDate(year:Int, m:Int, d:Int):String {
-        var month: String = m.toString()
+        val mom = m + 1
+        var month: String = mom.toString()
         var day: String = d.toString()
         if(month.length == 1) {month = "0" + month}
         if(day.length == 1) {day = "0" + day}
 
         return year.toString() + "-" + month + "-" + day
+    }
+
+    override fun onDestroy() {
+        ScheduleDB.destroyInstance()
+        super.onDestroy()
     }
 }
