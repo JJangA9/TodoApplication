@@ -1,9 +1,11 @@
 package com.example.myapplication
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -12,12 +14,9 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.RoomDB.Schedule
-import com.example.myapplication.RoomDB.ScheduleDB
 import com.example.myapplication.RoomDB.ScheduleViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_main.*
-import java.text.SimpleDateFormat
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,21 +31,22 @@ class MainActivity : AppCompatActivity() {
         adapter = CustomAdapter({ schedule ->
             //일정 클릭하면 수정화면으로 넘어가기
             val modifyIntent = Intent(this, ScheduleAddActivity::class.java)
+            modifyIntent.putExtra("id", schedule.id)
             modifyIntent.putExtra("schedule", schedule.schedule)
             modifyIntent.putExtra("date", schedule.date)
             modifyIntent.putExtra("iconIndex", schedule.iconIndex)
             startActivity(modifyIntent)
+
         }, {schedule ->
             //deleteDialog(schedule)
         })
+
 
         scheduleViewModel = ViewModelProviders.of(this).get(ScheduleViewModel::class.java)
         scheduleViewModel.getAll().observe(this, Observer<List<Schedule>>{ schedule ->
             //Update UI
             adapter.setSchedule(schedule!!)
         })
-
-
 
         //LayoutManager로 RecyclerView 연결
         val lm = LinearLayoutManager(this)
@@ -68,8 +68,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                //일정 삭제 여부 dialog 호출
                 deleteDialog(adapter.getScheduleAt(viewHolder.adapterPosition))
-                //scheduleViewModel.delete(adapter.getScheduleAt(viewHolder.adapterPosition))
             }
         }
         val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)

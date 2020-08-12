@@ -1,17 +1,15 @@
 package com.example.myapplication
 
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.animation.AnimationUtils
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProviders
 import com.example.myapplication.RoomDB.Schedule
-import com.example.myapplication.RoomDB.ScheduleDB
 import com.example.myapplication.RoomDB.ScheduleViewModel
 import kotlinx.android.synthetic.main.activity_schedule_add.*
-import kotlinx.android.synthetic.main.adapter_iem_layout.view.*
 import java.util.*
 
 class ScheduleAddActivity : AppCompatActivity() {
@@ -65,6 +63,7 @@ class ScheduleAddActivity : AppCompatActivity() {
             else if(iconIndex == 4) {main_icon.setImageResource(R.drawable.conference)}
             else if(iconIndex == 5) {main_icon.setImageResource(R.drawable.dinner)}
             else if(iconIndex == 6) {main_icon.setImageResource(R.drawable.book)}
+
         } else { //일정을 추가할 경우 당일 날짜로 초기화
             date_picker.init(
                     thisYear,
@@ -74,7 +73,6 @@ class ScheduleAddActivity : AppCompatActivity() {
                     DatePicker.OnDateChangedListener { view, year, monthOfYear, dayOfMonth ->
 
                     }
-
             )
         }
 
@@ -136,15 +134,26 @@ class ScheduleAddActivity : AppCompatActivity() {
             if (schedule == "") { //일정 내용을 입력 안하면 Toast 띄워줌
                 Toast.makeText(this, "일정 내용을 입력해주세요", Toast.LENGTH_SHORT).show()
             } else {
-                //새로운 schedule 객체 생성
-                val newSche = Schedule()
-                newSche.date = selectedDate
-                newSche.schedule = schedule
-                newSche.iconIndex = indexOfIcon
-                scheduleViewModel.insert(newSche)
 
-                val giveIntent = Intent(this, MainActivity::class.java)
-                startActivity(giveIntent)
+                if (intent.hasExtra("schedule")) {//일정 수정일 경우
+                    val newSche = Schedule()
+                    newSche.date = selectedDate
+                    newSche.schedule = schedule
+                    newSche.iconIndex = indexOfIcon
+                    newSche.id = intent.getLongExtra("id", -1)
+
+                    scheduleViewModel.update(newSche)
+                }
+                else {//일정 새로 추가일 경우
+                    //새로운 schedule 객체 생성
+                    val newSche = Schedule()
+                    newSche.date = selectedDate
+                    newSche.schedule = schedule
+                    newSche.iconIndex = indexOfIcon
+
+                    scheduleViewModel.insert(newSche)
+                }
+                finish()
             }
         }
     }
