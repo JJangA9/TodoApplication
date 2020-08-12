@@ -4,11 +4,16 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.RoomDB.Schedule
 import com.example.myapplication.RoomDB.ScheduleDB
+import com.example.myapplication.RoomDB.ScheduleViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_main.*
 import java.text.SimpleDateFormat
@@ -16,115 +21,76 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var customAdapter:CustomAdapter
-    private var scheduleDB : ScheduleDB? = null
-    private var scheduleList = listOf<Schedule>()
-    lateinit var itemTouchHelper:ItemTouchHelper
+    private lateinit var scheduleViewModel : ScheduleViewModel
+    lateinit var adapter: CustomAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        scheduleDB = ScheduleDB.getInstance(this)
-        customAdapter = CustomAdapter(this, scheduleList)
+        //Recycler adapter 설정
+        adapter = CustomAdapter({ schedule ->
+            //일정 클릭하면 수정화면으로 넘어가기
+            val modifyIntent = Intent(this, ScheduleAddActivity::class.java)
+            modifyIntent.putExtra("schedule", schedule.schedule)
+            modifyIntent.putExtra("date", schedule.date)
+            modifyIntent.putExtra("iconIndex", schedule.iconIndex)
+            startActivity(modifyIntent)
+        }, {schedule ->
+            //deleteDialog(schedule)
+        })
 
-        //setRecyclerViewItemTouchListener()
-        initRecyclerView()
+        scheduleViewModel = ViewModelProviders.of(this).get(ScheduleViewModel::class.java)
+        scheduleViewModel.getAll().observe(this, Observer<List<Schedule>>{ schedule ->
+            //Update UI
+            adapter.setSchedule(schedule!!)
+        })
+
+
+
+        //LayoutManager로 RecyclerView 연결
+        val lm = LinearLayoutManager(this)
+        recyclerView.adapter = adapter
+        recyclerView.layoutManager = lm
+        recyclerView.setHasFixedSize(true)
 
         val fab = findViewById<FloatingActionButton>(R.id.fab_btn)
         //일정 추가 floating button 클릭
         fab.setOnClickListener{
             startActivity(Intent(this@MainActivity, ScheduleAddActivity::class.java))
         }
-        
 
-//        itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(customAdapter))
-//        itemTouchHelper.attachToRecyclerView(recyclerView)
-    }
+        //swipe or swap할 경우
+        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                adapter.swapItems(viewHolder.adapterPosition, target.adapterPosition)
+                return true
+            }
 
-    //오늘 날짜 가져오기
-    private fun getTodayDate(selected: String):Long {
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
-        val currentDate = sdf.format(Date())
-
-        val startDate = sdf.parse(currentDate)
-        val endDate = sdf.parse(selected)
-        val diff = endDate.time - startDate.time
-        return diff / (24 * 60 * 60 * 1000)
-    }
-
-//    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
-//        itemTouchHelper.startDrag(viewHolder)
-//    }
-
-//    private fun setRecyclerViewItemTouchListener() {
-//
-//        //1
-//        val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
-//            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, viewHolder1: RecyclerView.ViewHolder): Boolean {
-//                //2
-//                return false
-//            }
-//
-//            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
-//                //3
-//                val position = viewHolder.adapterPosition
-//                scheduleList.removeAt(position)
-//                recyclerView.adapter!!.notifyItemRemoved(position)
-//            }
-//        }
-//
-//        //4
-//        val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
-//        itemTouchHelper.attachToRecyclerView(recyclerView)
-//    }
-
-//    override fun onItemClickListener(position:Int) {
-//        val addRunnable = Runnable {
-//            scheduleDB?.scheduleDao()?.deleteItemByIds(scheduleList[position])
-//1
-//        }
-//
-//        val addThread = Thread(addRunnable)
-//        addThread.start()
-//
-//        initRecyclerView()
-//    }
-
-    fun initRecyclerView() {
-        val r = Runnable {
-            try {
-                scheduleList = scheduleDB?.scheduleDao()?.getAll()!!
-                customAdapter = CustomAdapter(this, scheduleList)
-                customAdapter.notifyDataSetChanged()
-
-                recyclerView.adapter = customAdapter
-                recyclerView.layoutManager = LinearLayoutManager(this)
-                recyclerView.setHasFixedSize(true)
-
-            } catch (e: Exception) {
-                Log.d("tag", "Error - $e")
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                deleteDialog(adapter.getScheduleAt(viewHolder.adapterPosition))
+                //scheduleViewModel.delete(adapter.getScheduleAt(viewHolder.adapterPosition))
             }
         }
+        val itemTouchHelper = ItemTouchHelper(itemTouchHelperCallback)
+        itemTouchHelper.attachToRecyclerView(recyclerView)
 
-        val thread = Thread(r)
-        thread.start()
     }
 
-    override fun onDestroy() {
-        ScheduleDB.destroyInstance()
-        scheduleDB = null
-        super.onDestroy()
+    private fun deleteDialog(schedule: Schedule) {
+        val builder = AlertDialog.Builder(this)
+        builder.setMessage("삭제하시겠습니까?")
+                .setNegativeButton("NO") {_, _ ->
+                    //삭제를 취소하면 swipe 취소
+                    scheduleViewModel.getAll().observe(this, Observer<List<Schedule>>{ schedule ->
+                        //Update UI
+                        adapter.setSchedule(schedule!!)
+                    })
+                }
+                .setPositiveButton("YES") {_, _ ->
+                    scheduleViewModel.delete(schedule)
+                }
+        builder.show()
     }
 
-//    private fun setRecyclerViewItemTouchListener() {
-//        override fun onMove(recyclerView:RecyclerView, viewHolder: CustomViewHolder):Boolean {
-//            return false
-//        }
-//
-//        override fun onSwiped(viewHolder:RecyclerView, swipeDir: Int) {
-//            val position = viewHolder.adapterPosition
-//
-//        }
-//    }
 }

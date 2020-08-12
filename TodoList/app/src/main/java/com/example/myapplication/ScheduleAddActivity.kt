@@ -6,23 +6,26 @@ import android.view.animation.AnimationUtils
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProviders
 import com.example.myapplication.RoomDB.Schedule
 import com.example.myapplication.RoomDB.ScheduleDB
+import com.example.myapplication.RoomDB.ScheduleViewModel
 import kotlinx.android.synthetic.main.activity_schedule_add.*
+import kotlinx.android.synthetic.main.adapter_iem_layout.view.*
 import java.util.*
 
 class ScheduleAddActivity : AppCompatActivity() {
 
+    private lateinit var scheduleViewModel: ScheduleViewModel
     private lateinit var calendar: Calendar
     var isOpen = false
-    var indexOfIcon:Int = 0
-
-    private var scheduleDB : ScheduleDB? = null
+    var indexOfIcon: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_schedule_add)
 
+        scheduleViewModel = ViewModelProviders.of(this).get(ScheduleViewModel::class.java)
         //actionbar
         val actionbar = supportActionBar
         //set actionbar title
@@ -31,21 +34,52 @@ class ScheduleAddActivity : AppCompatActivity() {
         actionbar.setDisplayHomeAsUpEnabled(true)
         actionbar.setDisplayHomeAsUpEnabled(true)
 
+        //오늘 날짜 가져오기
         calendar = Calendar.getInstance()
         val thisYear = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
         val day = calendar.get(Calendar.DAY_OF_MONTH)
-
-        scheduleDB = ScheduleDB.getInstance(this)
-
 
         val fabOpen = AnimationUtils.loadAnimation(this, R.anim.fab_open)
         val fabClose = AnimationUtils.loadAnimation(this, R.anim.fab_close)
         val fabRClockwise = AnimationUtils.loadAnimation(this, R.anim.rotate_clockwise)
         val fabRAntiClockwise = AnimationUtils.loadAnimation(this, R.anim.rotate_anticlockwise)
 
-        main_icon.setOnClickListener{
-            if(isOpen) {
+        //일정을 수정할 경우
+        if (intent.hasExtra("schedule")) {
+            scheduleTxt.setText(intent.getStringExtra("schedule"))
+            val selectedDate = intent.getStringExtra("date")
+            //저장되어 있는 날짜로 날짜 초기화
+            date_picker.init(
+                    selectedDate.substring(0, 4).toInt(),
+                    selectedDate.substring(5, 7).toInt() - 1,
+                    selectedDate.substring(8).toInt(),
+                    //날짜가 바뀌면
+                    DatePicker.OnDateChangedListener { view, year, monthOfYear, dayOfMonth ->
+
+                    }
+            )
+            val iconIndex = intent.getIntExtra("iconIndex", 0)
+            if(iconIndex == 0 || iconIndex == 2) {main_icon.setImageResource(R.drawable.heart)}
+            else if(iconIndex == 3) {main_icon.setImageResource(R.drawable.travel)}
+            else if(iconIndex == 4) {main_icon.setImageResource(R.drawable.conference)}
+            else if(iconIndex == 5) {main_icon.setImageResource(R.drawable.dinner)}
+            else if(iconIndex == 6) {main_icon.setImageResource(R.drawable.book)}
+        } else { //일정을 추가할 경우 당일 날짜로 초기화
+            date_picker.init(
+                    thisYear,
+                    month,
+                    day,
+                    //날짜가 바뀌면
+                    DatePicker.OnDateChangedListener { view, year, monthOfYear, dayOfMonth ->
+
+                    }
+
+            )
+        }
+
+        main_icon.setOnClickListener {
+            if (isOpen) {
                 second_icon.startAnimation(fabClose)
                 third_icon.startAnimation(fabClose)
                 fourth_icon.startAnimation(fabClose)
@@ -93,37 +127,21 @@ class ScheduleAddActivity : AppCompatActivity() {
             }
 
         }
-        //오늘 날짜로 date picker를 초기화
-        date_picker.init(
-                thisYear,
-                month,
-                day,
-                //날짜가 바뀌면
-                DatePicker.OnDateChangedListener{view, year, monthOfYear, dayOfMonth ->
-
-                }
-
-        )
 
         //저장 버튼 누르면 DB에 일정 저장
         saveBtn.setOnClickListener {
             val schedule: String = scheduleTxt.getText().toString()
             val selectedDate: String = formatDate(date_picker.year, date_picker.month, date_picker.dayOfMonth)
 
-            if(schedule == "") { //일정 내용을 입력 안하면 Toast 띄워줌
+            if (schedule == "") { //일정 내용을 입력 안하면 Toast 띄워줌
                 Toast.makeText(this, "일정 내용을 입력해주세요", Toast.LENGTH_SHORT).show()
             } else {
                 //새로운 schedule 객체 생성
-                val addRunnable = Runnable {
-                    val newSche = Schedule()
-                    newSche.date = selectedDate
-                    newSche.schedule = schedule
-                    newSche.iconIndex = indexOfIcon
-                    scheduleDB?.scheduleDao()?.insert(newSche)
-                }
-
-                val addThread = Thread(addRunnable)
-                addThread.start()
+                val newSche = Schedule()
+                newSche.date = selectedDate
+                newSche.schedule = schedule
+                newSche.iconIndex = indexOfIcon
+                scheduleViewModel.insert(newSche)
 
                 val giveIntent = Intent(this, MainActivity::class.java)
                 startActivity(giveIntent)
@@ -137,18 +155,17 @@ class ScheduleAddActivity : AppCompatActivity() {
         return true
     }
 
-    private fun formatDate(year:Int, m:Int, d:Int):String {
+    private fun formatDate(year: Int, m: Int, d: Int): String {
         val mom = m + 1
         var month: String = mom.toString()
         var day: String = d.toString()
-        if(month.length == 1) {month = "0" + month}
-        if(day.length == 1) {day = "0" + day}
+        if (month.length == 1) {
+            month = "0" + month
+        }
+        if (day.length == 1) {
+            day = "0" + day
+        }
 
         return year.toString() + "-" + month + "-" + day
-    }
-
-    override fun onDestroy() {
-        ScheduleDB.destroyInstance()
-        super.onDestroy()
     }
 }

@@ -16,16 +16,12 @@ abstract class ScheduleDB: RoomDatabase() {
             if(INSTANCE == null) {
                 synchronized(ScheduleDB::class) {
                     INSTANCE = Room.databaseBuilder(context.applicationContext,
-                            ScheduleDB::class.java, "schedule.db")
+                            ScheduleDB::class.java, "schedule")
                             .fallbackToDestructiveMigration()
                             .build()
                 }
             }
             return INSTANCE
-        }
-
-        fun destroyInstance() {
-            INSTANCE = null
         }
     }
 }
