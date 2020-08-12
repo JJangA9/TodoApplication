@@ -1,6 +1,7 @@
 package com.example.myapplication.RoomDB
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
@@ -14,6 +15,8 @@ interface ScheduleDao {
     @Insert(onConflict = REPLACE)
     fun insert(schedule: Schedule)
 
-    @Query("DELETE from schedule")
-    fun deleteAll()
+    @Delete
+    fun deleteItemByIds(schedule: Schedule)
+//    @Query("DELETE from schedule WHERE id IN (:ids)")
+//    fun deleteItemByIds(ids: Int)
 }

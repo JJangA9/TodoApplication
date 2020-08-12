@@ -4,7 +4,9 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.RoomDB.Schedule
 import com.example.myapplication.RoomDB.ScheduleDB
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -17,6 +19,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var customAdapter:CustomAdapter
     private var scheduleDB : ScheduleDB? = null
     private var scheduleList = listOf<Schedule>()
+    lateinit var itemTouchHelper:ItemTouchHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,6 +28,70 @@ class MainActivity : AppCompatActivity() {
         scheduleDB = ScheduleDB.getInstance(this)
         customAdapter = CustomAdapter(this, scheduleList)
 
+        //setRecyclerViewItemTouchListener()
+        initRecyclerView()
+
+        val fab = findViewById<FloatingActionButton>(R.id.fab_btn)
+        //일정 추가 floating button 클릭
+        fab.setOnClickListener{
+            startActivity(Intent(this@MainActivity, ScheduleAddActivity::class.java))
+        }
+        
+
+//        itemTouchHelper = ItemTouchHelper(ItemTouchHelperCallback(customAdapter))
+//        itemTouchHelper.attachToRecyclerView(recyclerView)
+    }
+
+    //오늘 날짜 가져오기
+    private fun getTodayDate(selected: String):Long {
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
+        val currentDate = sdf.format(Date())
+
+        val startDate = sdf.parse(currentDate)
+        val endDate = sdf.parse(selected)
+        val diff = endDate.time - startDate.time
+        return diff / (24 * 60 * 60 * 1000)
+    }
+
+//    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
+//        itemTouchHelper.startDrag(viewHolder)
+//    }
+
+//    private fun setRecyclerViewItemTouchListener() {
+//
+//        //1
+//        val itemTouchCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+//            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, viewHolder1: RecyclerView.ViewHolder): Boolean {
+//                //2
+//                return false
+//            }
+//
+//            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, swipeDir: Int) {
+//                //3
+//                val position = viewHolder.adapterPosition
+//                scheduleList.removeAt(position)
+//                recyclerView.adapter!!.notifyItemRemoved(position)
+//            }
+//        }
+//
+//        //4
+//        val itemTouchHelper = ItemTouchHelper(itemTouchCallback)
+//        itemTouchHelper.attachToRecyclerView(recyclerView)
+//    }
+
+//    override fun onItemClickListener(position:Int) {
+//        val addRunnable = Runnable {
+//            scheduleDB?.scheduleDao()?.deleteItemByIds(scheduleList[position])
+//1
+//        }
+//
+//        val addThread = Thread(addRunnable)
+//        addThread.start()
+//
+//        initRecyclerView()
+//    }
+
+    fun initRecyclerView() {
         val r = Runnable {
             try {
                 scheduleList = scheduleDB?.scheduleDao()?.getAll()!!
@@ -42,24 +109,6 @@ class MainActivity : AppCompatActivity() {
 
         val thread = Thread(r)
         thread.start()
-
-        val fab = findViewById<FloatingActionButton>(R.id.fab_btn)
-        //일정 추가 floating button 클릭
-        fab.setOnClickListener{
-            startActivity(Intent(this@MainActivity, ScheduleAddActivity::class.java))
-        }
-
-    }
-
-    //오늘 날짜 가져오기
-    private fun getTodayDate(selected: String):Long {
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
-        val currentDate = sdf.format(Date())
-
-        val startDate = sdf.parse(currentDate)
-        val endDate = sdf.parse(selected)
-        val diff = endDate.time - startDate.time
-        return diff / (24 * 60 * 60 * 1000)
     }
 
     override fun onDestroy() {
