@@ -5,7 +5,11 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -26,6 +30,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        //custom action bar 세팅
+        supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
+        supportActionBar?.setCustomView(R.layout.action_bar_layout)
+        val title = findViewById<TextView>(R.id.appTitle)
+        title.setText("투두")
 
         //Recycler adapter 설정
         adapter = CustomAdapter({ schedule ->
@@ -91,6 +101,20 @@ class MainActivity : AppCompatActivity() {
                     scheduleViewModel.delete(schedule)
                 }
         builder.show()
+    }
+    
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.settingBtn -> {
+                startActivity(Intent(this@MainActivity, SettingActivity::class.java))
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
 }

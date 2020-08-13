@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/appTitle"
+        android:gravity="center"
+        android:text="투두"
+        android:fontFamily="@font/app_main_font"
+        style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/appTitleImage"
+        android:layout_gravity="center_vertical"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/apptitle"/>
+
+</LinearLayout>
