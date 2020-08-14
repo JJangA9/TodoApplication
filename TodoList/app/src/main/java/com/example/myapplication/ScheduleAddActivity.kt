@@ -30,7 +30,6 @@ class ScheduleAddActivity : AppCompatActivity() {
         actionbar!!.title = "일정 등록"
         //set back button
         actionbar.setDisplayHomeAsUpEnabled(true)
-        actionbar.setDisplayHomeAsUpEnabled(true)
 
         //오늘 날짜 가져오기
         calendar = Calendar.getInstance()
