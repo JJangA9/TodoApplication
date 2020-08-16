@@ -10,6 +10,9 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedule ORDER BY date ASC")
     fun getAll(): LiveData<List<Schedule>>
 
+    @Query("SELECT * FROM schedule ORDER BY id DESC limit 1")
+    fun getLast(): LiveData<List<Schedule>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(schedule: Schedule)
 

@@ -1,12 +1,20 @@
 package com.example.myapplication
 
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.animation.AnimationUtils
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.example.myapplication.Notification.App
+import com.example.myapplication.Notification.Notification
 import com.example.myapplication.RoomDB.Schedule
 import com.example.myapplication.RoomDB.ScheduleViewModel
 import kotlinx.android.synthetic.main.activity_schedule_add.*
@@ -125,7 +133,7 @@ class ScheduleAddActivity : AppCompatActivity() {
 
         }
 
-        //저장 버튼 누르면 DB에 일정 저장
+        //저장 버튼 누르면 RoomDB에 일정저장하고 알림 설정
         saveBtn.setOnClickListener {
             val schedule: String = scheduleTxt.getText().toString()
             val selectedDate: String = formatDate(date_picker.year, date_picker.month, date_picker.dayOfMonth)
@@ -151,16 +159,38 @@ class ScheduleAddActivity : AppCompatActivity() {
                     newSche.iconIndex = indexOfIcon
 
                     scheduleViewModel.insert(newSche)
+
+                    //저장한 일정 알림 만들기
+                    scheduleViewModel.getLast().observe(this, Observer<List<Schedule>>{ schedule ->
+                        val insertedData = schedule
+                        if(App.prefs.notification == "Y") {AlarmMake(applicationContext).Alarm(insertedData)}
+                        else {}
+                    })
+
                 }
                 finish()
             }
         }
     }
 
-    //뒤로가기 버튼
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressed()
-        return true
+    class AlarmMake(context: Context) {
+        private val context: Context
+        init{ this.context = context}
+
+        fun Alarm(insertedData: List<Schedule>) {
+            val am: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+            val intent = Intent(context, Notification::class.java)
+            val sender: PendingIntent = PendingIntent.getBroadcast(context, insertedData[0].id!!.toInt(), intent, 0)
+
+            val calendar: Calendar = Calendar.getInstance()
+            val date = insertedData[0].date
+
+            //실제 달보다 1 작은 숫자로 인식
+            val month = date.substring(5, 7).toInt() - 1
+
+            calendar.set(date.substring(0, 4).toInt(), month, date.substring(8).toInt(),23, 45, 0)
+            am.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, sender)
+        }
     }
 
     private fun formatDate(year: Int, m: Int, d: Int): String {
@@ -175,5 +205,11 @@ class ScheduleAddActivity : AppCompatActivity() {
         }
 
         return year.toString() + "-" + month + "-" + day
+    }
+
+    //뒤로가기 버튼
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
     }
 }

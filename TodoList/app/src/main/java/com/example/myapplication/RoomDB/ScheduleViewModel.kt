@@ -8,9 +8,14 @@ class ScheduleViewModel (application: Application) : AndroidViewModel(applicatio
 
     private val repository = ScheduleRepository(application)
     private val schedule = repository.getAll()
+    private val scheduleId = repository.getLast()
 
     fun getAll() : LiveData<List<Schedule>> {
         return this.schedule
+    }
+
+    fun getLast() : LiveData<List<Schedule>> {
+        return this.scheduleId
     }
 
     fun insert(schedule: Schedule){

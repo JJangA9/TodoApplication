@@ -8,9 +8,14 @@ class ScheduleRepository (application: Application){
     private val scheduleDB = ScheduleDB.getInstance(application)!!
     private val scheduleDao: ScheduleDao = scheduleDB.scheduleDao()
     private val schedule: LiveData<List<Schedule>> = scheduleDao.getAll()
+    private val scheduleId: LiveData<List<Schedule>> = scheduleDao.getLast()
 
     fun getAll() : LiveData<List<Schedule>> {
         return schedule
+    }
+
+    fun getLast() : LiveData<List<Schedule>> {
+        return scheduleId
     }
 
     fun insert(schedule: Schedule) {
