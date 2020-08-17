@@ -180,15 +180,18 @@ class ScheduleAddActivity : AppCompatActivity() {
         fun Alarm(insertedData: List<Schedule>) {
             val am: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
             val intent = Intent(context, Notification::class.java)
-            val sender: PendingIntent = PendingIntent.getBroadcast(context, insertedData[0].id!!.toInt(), intent, 0)
-
+            //알람에 띄울 아이콘 index와 일정 내용 보내기
+            intent.putExtra("indexOfIcon", insertedData[0].iconIndex)
+            intent.putExtra("schedule", insertedData[0].schedule)
+            intent.putExtra("id", insertedData[0].id)
+            val sender: PendingIntent = PendingIntent.getBroadcast(context, insertedData[0].id!!.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
             val calendar: Calendar = Calendar.getInstance()
             val date = insertedData[0].date
 
             //실제 달보다 1 작은 숫자로 인식
             val month = date.substring(5, 7).toInt() - 1
 
-            calendar.set(date.substring(0, 4).toInt(), month, date.substring(8).toInt(),23, 45, 0)
+            calendar.set(date.substring(0, 4).toInt(), month, date.substring(8).toInt(),21, 16, 0)
             am.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, sender)
         }
     }
