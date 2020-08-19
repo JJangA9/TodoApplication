@@ -1,23 +1,18 @@
 package com.example.myapplication
 
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.animation.AnimationUtils
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.example.myapplication.Notification.App
-import com.example.myapplication.Notification.Notification
+import com.example.myapplication.Notification.AlarmSetting
 import com.example.myapplication.RoomDB.Schedule
 import com.example.myapplication.RoomDB.ScheduleViewModel
 import kotlinx.android.synthetic.main.activity_schedule_add.*
+import java.text.SimpleDateFormat
 import java.util.*
 
 class ScheduleAddActivity : AppCompatActivity() {
@@ -163,36 +158,25 @@ class ScheduleAddActivity : AppCompatActivity() {
                     //저장한 일정 알림 만들기
                     scheduleViewModel.getLast().observe(this, Observer<List<Schedule>>{ schedule ->
                         val insertedData = schedule
-                        if(App.prefs.notification == "Y") {AlarmMake(applicationContext).Alarm(insertedData)}
+                        val alarmData: MutableList<Schedule> = mutableListOf()
+
+                        //오늘 날짜 가져오기
+                        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
+                        val currentDate = sdf.format(Date())
+
+                        if(App.prefs.notification == "Y") {
+                            for(x in 1..insertedData.size) {
+                                if (insertedData[x - 1].date > currentDate) { //오늘보다 나중 일정이면 알람 추가
+                                    alarmData.add(insertedData[x - 1])
+                                }
+                            }
+                            AlarmSetting(applicationContext).makeAlarm(alarmData)}
                         else {}
                     })
 
                 }
                 finish()
             }
-        }
-    }
-
-    class AlarmMake(context: Context) {
-        private val context: Context
-        init{ this.context = context}
-
-        fun Alarm(insertedData: List<Schedule>) {
-            val am: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-            val intent = Intent(context, Notification::class.java)
-            //알람에 띄울 아이콘 index와 일정 내용 보내기
-            intent.putExtra("indexOfIcon", insertedData[0].iconIndex)
-            intent.putExtra("schedule", insertedData[0].schedule)
-            intent.putExtra("id", insertedData[0].id)
-            val sender: PendingIntent = PendingIntent.getBroadcast(context, insertedData[0].id!!.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
-            val calendar: Calendar = Calendar.getInstance()
-            val date = insertedData[0].date
-
-            //실제 달보다 1 작은 숫자로 인식
-            val month = date.substring(5, 7).toInt() - 1
-
-            calendar.set(date.substring(0, 4).toInt(), month, date.substring(8).toInt(),21, 16, 0)
-            am.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, sender)
         }
     }
 

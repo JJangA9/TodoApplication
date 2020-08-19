@@ -1,29 +1,23 @@
 package com.example.myapplication
 
-import android.app.Notification
-import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
-import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
-import android.view.View
 import android.widget.Switch
-import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.example.myapplication.Notification.App
+import com.example.myapplication.Notification.AlarmSetting
+import com.example.myapplication.RoomDB.Schedule
+import com.example.myapplication.RoomDB.ScheduleViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 class SettingActivity : AppCompatActivity() {
 
-//    lateinit var notificationManager : NotificationManager
+    lateinit var notificationManager : NotificationManager
+    private lateinit var scheduleViewModel: ScheduleViewModel
 //    lateinit var notificationChannel : NotificationChannel
 //    lateinit var builder : Notification.Builder
 //    private val channelId = "i.apps.notifications"
@@ -35,10 +29,12 @@ class SettingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
 
+        scheduleViewModel = ViewModelProviders.of(this).get(ScheduleViewModel::class.java)
         toggle = findViewById<Switch>(R.id.toggleBtn)
         if(App.prefs.notification == "Y") {toggle.isChecked = true}
         else {toggle.isChecked = false}
-//        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         //actionbar
         val actionbar = supportActionBar
         //set actionbar title
@@ -48,9 +44,31 @@ class SettingActivity : AppCompatActivity() {
         toggle.setOnCheckedChangeListener ({ _, isChecked ->
             toggleInit = if (isChecked) "Y" else "N"
             App.prefs.notification = toggleInit
+            notiOnOff(toggleInit)
         })
     }
 
+    fun notiOnOff(noti: String) {
+        if(noti == "Y") { // 사용자가 알림 받기로 바꾼 경우
+            scheduleViewModel.getAll().observe(this, Observer<List<Schedule>>{ schedule ->
+                val insertedData = schedule
+                val alarmData: MutableList<Schedule> = mutableListOf()
+
+                //오늘 날짜 가져오기
+                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
+                val currentDate = sdf.format(Date())
+
+                for(x in 1..insertedData.size) {
+                    if (insertedData[x - 1].date > currentDate) { //내일부터의 일정 알람 추가
+                        alarmData.add(insertedData[x-1])
+                    }
+                    AlarmSetting(applicationContext).makeAlarm(alarmData)
+                }
+            })
+        } else { // 사용자가 알림 안받기로 바꾼 경우
+            AlarmSetting(applicationContext).deleteAlarm()
+        }
+    }
     //뒤로가기 버튼
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
