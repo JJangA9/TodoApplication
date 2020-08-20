@@ -1,17 +1,25 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.DatePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.example.myapplication.Notification.App
 import com.example.myapplication.Notification.AlarmSetting
+import com.example.myapplication.Notification.App
 import com.example.myapplication.RoomDB.Schedule
 import com.example.myapplication.RoomDB.ScheduleViewModel
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
+import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_schedule_add.*
+import kotlinx.android.synthetic.main.activity_schedule_add.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,6 +41,10 @@ class ScheduleAddActivity : AppCompatActivity() {
         actionbar!!.title = "일정 등록"
         //set back button
         actionbar.setDisplayHomeAsUpEnabled(true)
+
+        //애드몹 초기화
+        MobileAds.initialize(this) {}
+        adView2.loadAd(AdRequest.Builder().build())
 
         //오늘 날짜 가져오기
         calendar = Calendar.getInstance()
@@ -79,7 +91,10 @@ class ScheduleAddActivity : AppCompatActivity() {
         }
 
         main_icon.setOnClickListener {
+
             if (isOpen) {
+                showLayout.setBackgroundResource(R.drawable.border_circle)
+                hiddenLayout.visibility = View.GONE
                 second_icon.startAnimation(fabClose)
                 third_icon.startAnimation(fabClose)
                 fourth_icon.startAnimation(fabClose)
@@ -89,6 +104,8 @@ class ScheduleAddActivity : AppCompatActivity() {
 
                 isOpen = false
             } else {
+                showLayout.setBackgroundResource(R.drawable.border_topcircle)
+                hiddenLayout.visibility = View.VISIBLE
                 second_icon.startAnimation(fabOpen)
                 third_icon.startAnimation(fabOpen)
                 fourth_icon.startAnimation(fabOpen)
@@ -128,56 +145,58 @@ class ScheduleAddActivity : AppCompatActivity() {
 
         }
 
-        //저장 버튼 누르면 RoomDB에 일정저장하고 알림 설정
-        saveBtn.setOnClickListener {
-            val schedule: String = scheduleTxt.getText().toString()
-            val selectedDate: String = formatDate(date_picker.year, date_picker.month, date_picker.dayOfMonth)
-
-            if (schedule == "") { //일정 내용을 입력 안하면 Toast 띄워줌
-                Toast.makeText(this, "일정 내용을 입력해주세요", Toast.LENGTH_SHORT).show()
-            } else {
-
-                if (intent.hasExtra("schedule")) {//일정 수정일 경우
-                    val newSche = Schedule()
-                    newSche.date = selectedDate
-                    newSche.schedule = schedule
-                    newSche.iconIndex = indexOfIcon
-                    newSche.id = intent.getLongExtra("id", -1)
-
-                    scheduleViewModel.update(newSche)
-                }
-                else {//일정 새로 추가일 경우
-                    //새로운 schedule 객체 생성
-                    val newSche = Schedule()
-                    newSche.date = selectedDate
-                    newSche.schedule = schedule
-                    newSche.iconIndex = indexOfIcon
-
-                    scheduleViewModel.insert(newSche)
-
-                    //저장한 일정 알림 만들기
-                    scheduleViewModel.getLast().observe(this, Observer<List<Schedule>>{ schedule ->
-                        val insertedData = schedule
-                        val alarmData: MutableList<Schedule> = mutableListOf()
-
-                        //오늘 날짜 가져오기
-                        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
-                        val currentDate = sdf.format(Date())
-
-                        if(App.prefs.notification == "Y") {
-                            for(x in 1..insertedData.size) {
-                                if (insertedData[x - 1].date > currentDate) { //오늘보다 나중 일정이면 알람 추가
-                                    alarmData.add(insertedData[x - 1])
-                                }
-                            }
-                            AlarmSetting(applicationContext).makeAlarm(alarmData)}
-                        else {}
-                    })
-
-                }
-                finish()
-            }
-        }
+//        //저장 버튼 누르면 RoomDB에 일정저장하고 알림 설정
+//        saveBtn.setOnClickListener {
+//            val schedule: String = scheduleTxt.getText().toString()
+//            val selectedDate: String = formatDate(date_picker.year, date_picker.month, date_picker.dayOfMonth)
+//
+//            if (schedule == "") { //일정 내용을 입력 안하면 Toast 띄워줌
+//                Toast.makeText(this, "일정 내용을 입력해주세요", Toast.LENGTH_SHORT).show()
+//            } else {
+//
+//                if (intent.hasExtra("schedule")) {//일정 수정일 경우
+//                    val newSche = Schedule()
+//                    newSche.date = selectedDate
+//                    newSche.schedule = schedule
+//                    newSche.iconIndex = indexOfIcon
+//                    newSche.id = intent.getLongExtra("id", -1)
+//
+//                    scheduleViewModel.update(newSche)
+//                }
+//                else {//일정 새로 추가일 경우
+//                    //새로운 schedule 객체 생성
+//                    val newSche = Schedule()
+//                    newSche.date = selectedDate
+//                    newSche.schedule = schedule
+//                    newSche.iconIndex = indexOfIcon
+//
+//                    scheduleViewModel.insert(newSche)
+//
+//                    //저장한 일정 알림 만들기
+//                    scheduleViewModel.getLast().observe(this, Observer<List<Schedule>>{ schedule ->
+//                        val insertedData = schedule
+//                        val alarmData: MutableList<Schedule> = mutableListOf()
+//
+//                        //오늘 날짜 가져오기
+//                        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
+//                        val currentDate = sdf.format(Date())
+//
+//                        if(App.prefs.notification == "Y") {
+//                            for(x in 1..insertedData.size) {
+//                                if (insertedData[x - 1].date > currentDate) { //오늘보다 나중 일정이면 알람 추가
+//                                    alarmData.add(insertedData[x - 1])
+//                                }
+//                            }
+//                            AlarmSetting(applicationContext).makeAlarm(alarmData)}
+//                        else {
+//
+//                        }
+//                    })
+//
+//                }
+//                finish()
+//            }
+//        }
     }
 
     private fun formatDate(year: Int, m: Int, d: Int): String {
@@ -198,5 +217,66 @@ class ScheduleAddActivity : AppCompatActivity() {
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.schedule_add_menu, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.storeBtn -> {
+                val schedule: String = scheduleTxt.getText().toString()
+                val selectedDate: String = formatDate(date_picker.year, date_picker.month, date_picker.dayOfMonth)
+
+                if (schedule == "") { //일정 내용을 입력 안하면 Toast 띄워줌
+                    Toast.makeText(this, "일정 내용을 입력해주세요", Toast.LENGTH_SHORT).show()
+                } else {
+
+                    if (intent.hasExtra("schedule")) {//일정 수정일 경우
+                        val newSche = Schedule()
+                        newSche.date = selectedDate
+                        newSche.schedule = schedule
+                        newSche.iconIndex = indexOfIcon
+                        newSche.id = intent.getLongExtra("id", -1)
+
+                        scheduleViewModel.update(newSche)
+                    } else {//일정 새로 추가일 경우
+                        //새로운 schedule 객체 생성
+                        val newSche = Schedule()
+                        newSche.date = selectedDate
+                        newSche.schedule = schedule
+                        newSche.iconIndex = indexOfIcon
+
+                        scheduleViewModel.insert(newSche)
+
+                        //저장한 일정 알림 만들기
+                        scheduleViewModel.getLast().observe(this, Observer<List<Schedule>> { schedule ->
+                            val insertedData = schedule
+                            val alarmData: MutableList<Schedule> = mutableListOf()
+
+                            //오늘 날짜 가져오기
+                            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
+                            val currentDate = sdf.format(Date())
+
+                            if (App.prefs.notification == "Y") {
+                                for (x in 1..insertedData.size) {
+                                    if (insertedData[x - 1].date > currentDate) { //오늘보다 나중 일정이면 알람 추가
+                                        alarmData.add(insertedData[x - 1])
+                                    }
+                                }
+                                AlarmSetting(applicationContext).makeAlarm(alarmData)
+                            } else {
+
+                            }
+                        })
+
+                    }
+                    finish()
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.util.Log
+import androidx.core.app.ServiceCompat.stopForeground
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 
@@ -19,8 +20,6 @@ class Notification: BroadcastReceiver(){
     lateinit var notificationManager : NotificationManager
     lateinit var notificationChannel : NotificationChannel
     lateinit var builder : Notification.Builder
-    private val channelId = "i.apps.notifications"
-    private val description = "Test notification"
 
     override fun onReceive(context: Context, intent: Intent) {
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -34,9 +33,12 @@ class Notification: BroadcastReceiver(){
             val notificationIntent = Intent(context, MainActivity::class.java).apply {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK
             }
-            val pendingIntent: PendingIntent = PendingIntent.getActivity(context, id.toInt(), notificationIntent, PendingIntent.FLAG_ONE_SHOT)
+            val pendingIntent: PendingIntent = PendingIntent.getActivity(context, id.toInt(), notificationIntent, PendingIntent.FLAG_CANCEL_CURRENT)
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channelId = "i.apps.notifications"
+                val description = "Test notification"
+
                 notificationChannel = NotificationChannel(
                         channelId, description, NotificationManager.IMPORTANCE_HIGH)
                 notificationChannel.enableLights(true)
@@ -93,16 +95,20 @@ class Notification: BroadcastReceiver(){
                 builder = Notification.Builder(context)
                         .setSmallIcon(R.drawable.book)
                         .setLargeIcon(BitmapFactory.decodeResource(context.resources,
-                                R.drawable.ic_launcher_background))
+                                R.drawable.book))
                         .setAutoCancel(true)
                         .setAutoCancel(true)
                         .setContentIntent(pendingIntent)
                         .setContentTitle("D - Day")
                         .setContentText(schedule)
             }
+            Log.d("hoho", id.toString())
             notificationManager.notify(id.toInt(),builder.build())
         } else { //알람을 안받도록 설정했다면
-            notificationManager.cancelAll()
+            val id = intent.getLongExtra("id", 0)
+            //val tag =
+            Log.d("delete", id.toString())
+            notificationManager.cancel("TAG", id.toInt())
         }
 
     }

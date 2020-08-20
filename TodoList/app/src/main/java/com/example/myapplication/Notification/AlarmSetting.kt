@@ -1,9 +1,11 @@
 package com.example.myapplication.Notification
 
 import android.app.AlarmManager
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.util.Log
 import com.example.myapplication.RoomDB.Schedule
 import java.text.SimpleDateFormat
 import java.util.*
@@ -27,7 +29,7 @@ class AlarmSetting(context: Context) {
             intent.putExtra("schedule", alarmData[x-1].schedule)
             intent.putExtra("id", alarmData[x-1].id)
             intent.putExtra("delete", 0)
-            sender = PendingIntent.getBroadcast(context, alarmData[x-1].id!!.toInt(), intent, PendingIntent.FLAG_ONE_SHOT)
+            sender = PendingIntent.getBroadcast(context, alarmData[x-1].id!!.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
             calendar = Calendar.getInstance()
             date = alarmData[x-1].date
 
@@ -37,16 +39,23 @@ class AlarmSetting(context: Context) {
             val sdf = SimpleDateFormat("mm", Locale.KOREAN)
             val currentTime = sdf.format(Date())
 
-            calendar.set(date.substring(0, 4).toInt(), month, date.substring(8).toInt()-1,2, currentTime.toInt() + 1, 0)
+            Log.d("alarm add final", alarmData[x-1].id!!.toString())
+            calendar.set(date.substring(0, 4).toInt(), month, date.substring(8).toInt()-1,17, currentTime.toInt() + 2, 0)
             am.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, sender)
         }
     }
 
     // 알람 삭제할 경우
-    fun deleteAlarm() {
+    fun deleteAlarm(alarmData: MutableList<Schedule>) {
         val intent = Intent(context, Notification::class.java)
-        intent.putExtra("delete", 1)
-        sender = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_ONE_SHOT)
-        am.set(AlarmManager.RTC_WAKEUP, 0, sender)
+
+        for(x in 1..alarmData.size) {
+            intent.putExtra("delete", 1)
+            intent.putExtra("id", alarmData[x-1].id)
+            Log.d("alarm delete final", alarmData[x-1].id!!.toString())
+
+            sender = PendingIntent.getBroadcast(context, alarmData[x-1].id!!.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            am.set(AlarmManager.RTC_WAKEUP, 0, sender)
+        }
     }
 }

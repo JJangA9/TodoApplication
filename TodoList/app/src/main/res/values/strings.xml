@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">My Application</string>
+    <string name="admob_app_id">"ca-app-pub-6435334756477881~6604648284"</string>
+    <string name="admob_advertise">"ca-app-pub-6435334756477881/4908423232"</string>
+    <string name="admob_test_id">"ca-app-pub-3940256099942544/6300978111"</string>
 </resources>

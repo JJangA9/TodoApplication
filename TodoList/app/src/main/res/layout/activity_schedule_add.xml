@@ -1,16 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    xmlns:ads="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:background="#ECECEC">
 
     <LinearLayout
+        android:id="@+id/insertLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="@drawable/border_layout">
+        android:background="@drawable/border_bottomcircle"
+        android:backgroundTint="#FFFF"
+        android:elevation="10dp"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -62,11 +67,16 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/showLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:padding="10dp"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/border_topcircle">
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/insertLayout"
+        android:background="@drawable/border_circle"
+        android:backgroundTint="#FFFF"
+        android:elevation="10dp"
+        android:clipToPadding="false">
 
         <TextView
             android:id="@+id/iconTxt"
@@ -74,19 +84,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="20dp"
+            android:layout_marginEnd="10dp"
             android:fontFamily="@font/app_main_font"
             android:text="아이콘"
             android:textSize="18sp" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/main_icon"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            app:backgroundTint="#EAEAEA"
-            app:fabSize="normal"
-            app:elevation="6dp"
-            android:src="@drawable/heart"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/second_icon"
@@ -121,13 +122,30 @@
             android:visibility="invisible"
             android:src="@drawable/conference"/>
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/main_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:backgroundTint="#EAEAEA"
+            app:fabSize="normal"
+            app:elevation="6dp"
+            android:src="@drawable/heart"/>
+
     </LinearLayout>
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:id="@+id/hiddenLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="120dp"
-        android:padding="10dp">
+        android:layout_below="@id/showLayout"
+        android:padding="10dp"
+        android:gravity="end"
+        android:visibility="invisible"
+        android:background="@drawable/border_bottomcircle"
+        android:backgroundTint="#FFFF"
+        android:elevation="10dp"
+        android:clipToPadding="false">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fifth_icon"
@@ -144,7 +162,10 @@
             android:id="@+id/sixth_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="14dp"
+            android:layout_marginStart="14dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="110dp"
+            android:layout_marginBottom="14dp"
             app:backgroundTint="#EAEAEA"
             app:fabSize="mini"
             app:elevation="6dp"
@@ -153,10 +174,13 @@
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/saveBtn"
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="저장" />
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/admob_test_id" />
 
-</LinearLayout>
+</RelativeLayout>

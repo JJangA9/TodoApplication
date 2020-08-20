@@ -19,6 +19,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.Notification.Notification
 import com.example.myapplication.RoomDB.Schedule
 import com.example.myapplication.RoomDB.ScheduleViewModel
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.MobileAds
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
@@ -37,6 +39,10 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setCustomView(R.layout.action_bar_layout)
         val title = findViewById<TextView>(R.id.appTitle)
         title.setText("투두")
+
+        //애드몹 초기화
+        MobileAds.initialize(this) {}
+        adView.loadAd(AdRequest.Builder().build())
 
         //Recycler adapter 설정
         adapter = CustomAdapter({ schedule ->
@@ -72,10 +78,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         //swipe or swap할 경우
-        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        val itemTouchHelperCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 adapter.swapItems(viewHolder.adapterPosition, target.adapterPosition)
-                return true
+                return false
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
