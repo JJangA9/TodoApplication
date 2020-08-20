@@ -15,7 +15,6 @@ import com.example.myapplication.RoomDB.Schedule
 import com.example.myapplication.RoomDB.ScheduleViewModel
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_setting.*
 import java.text.SimpleDateFormat
 import java.util.*

@@ -6,10 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.RoomDB.Schedule
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.adapter_iem_layout.view.*
 import java.text.SimpleDateFormat
 import java.util.*

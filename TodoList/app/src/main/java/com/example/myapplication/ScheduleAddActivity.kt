@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
@@ -17,9 +16,7 @@ import com.example.myapplication.RoomDB.Schedule
 import com.example.myapplication.RoomDB.ScheduleViewModel
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_schedule_add.*
-import kotlinx.android.synthetic.main.activity_schedule_add.view.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -142,61 +139,7 @@ class ScheduleAddActivity : AppCompatActivity() {
                 main_icon.setImageDrawable(getDrawable(R.drawable.book))
                 indexOfIcon = 6
             }
-
         }
-
-//        //저장 버튼 누르면 RoomDB에 일정저장하고 알림 설정
-//        saveBtn.setOnClickListener {
-//            val schedule: String = scheduleTxt.getText().toString()
-//            val selectedDate: String = formatDate(date_picker.year, date_picker.month, date_picker.dayOfMonth)
-//
-//            if (schedule == "") { //일정 내용을 입력 안하면 Toast 띄워줌
-//                Toast.makeText(this, "일정 내용을 입력해주세요", Toast.LENGTH_SHORT).show()
-//            } else {
-//
-//                if (intent.hasExtra("schedule")) {//일정 수정일 경우
-//                    val newSche = Schedule()
-//                    newSche.date = selectedDate
-//                    newSche.schedule = schedule
-//                    newSche.iconIndex = indexOfIcon
-//                    newSche.id = intent.getLongExtra("id", -1)
-//
-//                    scheduleViewModel.update(newSche)
-//                }
-//                else {//일정 새로 추가일 경우
-//                    //새로운 schedule 객체 생성
-//                    val newSche = Schedule()
-//                    newSche.date = selectedDate
-//                    newSche.schedule = schedule
-//                    newSche.iconIndex = indexOfIcon
-//
-//                    scheduleViewModel.insert(newSche)
-//
-//                    //저장한 일정 알림 만들기
-//                    scheduleViewModel.getLast().observe(this, Observer<List<Schedule>>{ schedule ->
-//                        val insertedData = schedule
-//                        val alarmData: MutableList<Schedule> = mutableListOf()
-//
-//                        //오늘 날짜 가져오기
-//                        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
-//                        val currentDate = sdf.format(Date())
-//
-//                        if(App.prefs.notification == "Y") {
-//                            for(x in 1..insertedData.size) {
-//                                if (insertedData[x - 1].date > currentDate) { //오늘보다 나중 일정이면 알람 추가
-//                                    alarmData.add(insertedData[x - 1])
-//                                }
-//                            }
-//                            AlarmSetting(applicationContext).makeAlarm(alarmData)}
-//                        else {
-//
-//                        }
-//                    })
-//
-//                }
-//                finish()
-//            }
-//        }
     }
 
     private fun formatDate(year: Int, m: Int, d: Int): String {
@@ -224,6 +167,7 @@ class ScheduleAddActivity : AppCompatActivity() {
         return true
     }
 
+    //저장 버튼을 누르면 Room DB에 저장
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.storeBtn -> {
@@ -240,8 +184,22 @@ class ScheduleAddActivity : AppCompatActivity() {
                         newSche.schedule = schedule
                         newSche.iconIndex = indexOfIcon
                         newSche.id = intent.getLongExtra("id", -1)
-
                         scheduleViewModel.update(newSche)
+
+                        if (App.prefs.notification == "Y") {
+                            scheduleViewModel.getAll().observe(this, Observer<List<Schedule>> { schedule ->
+                                val insertedData = schedule
+                                val alarmData: MutableList<Schedule> = mutableListOf()
+
+                                for (x in 1..insertedData.size) {
+                                    if (insertedData[x - 1].id == newSche.id) { //오늘보다 나중 일정이면 알람 추가
+                                        alarmData.add(insertedData[x - 1])
+                                    }
+                                }
+                                AlarmSetting(applicationContext).makeAlarm(alarmData)
+                            })
+                        } else {}
+
                     } else {//일정 새로 추가일 경우
                         //새로운 schedule 객체 생성
                         val newSche = Schedule()
@@ -268,7 +226,7 @@ class ScheduleAddActivity : AppCompatActivity() {
                                 }
                                 AlarmSetting(applicationContext).makeAlarm(alarmData)
                             } else {
-
+                                //알람 설정이 N 이면 알림 추가 X
                             }
                         })
 

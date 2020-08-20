@@ -36,11 +36,8 @@ class AlarmSetting(context: Context) {
             //실제 달보다 1 작은 숫자로 인식
             val month = date.substring(5, 7).toInt() - 1
 
-            val sdf = SimpleDateFormat("mm", Locale.KOREAN)
-            val currentTime = sdf.format(Date())
-
             Log.d("alarm add final", alarmData[x-1].id!!.toString())
-            calendar.set(date.substring(0, 4).toInt(), month, date.substring(8).toInt()-1,17, currentTime.toInt() + 2, 0)
+            calendar.set(date.substring(0, 4).toInt(), month, date.substring(8).toInt(),0, 0, 0)
             am.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, sender)
         }
     }
