@@ -8,8 +8,8 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 
 class SplashActivity : AppCompatActivity(){
-    private val SPLASH_TIME_OUT:Long = 3000
-    private val WRITING_TIME_OUT:Long = 1000
+    private val SPLASH_TIME_OUT:Long = 1000
+    private val WRITING_TIME_OUT:Long = 500
     override fun onCreate(savedInstances: Bundle?) {
         super.onCreate(savedInstances)
         setContentView(R.layout.activity_splash);
@@ -21,7 +21,7 @@ class SplashActivity : AppCompatActivity(){
                 imageView2.visibility = View.VISIBLE
             }, WRITING_TIME_OUT)
 
-        //3초후 mainActivity로 전환
+        //2초후 mainActivity로 전환
         Handler().postDelayed({
             startActivity(Intent(this, MainActivity::class.java))
             finish()

@@ -30,6 +30,7 @@
         <activity android:name=".ScheduleAddActivity"/>
         <activity android:name=".SettingActivity"/>
         <receiver android:name=".Notification.Notification"></receiver>
+        <receiver android:name=".SettingActivity$resetReceiver"></receiver>
     </application>
 
 </manifest>

@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -53,8 +54,7 @@ class MainActivity : AppCompatActivity() {
             //deleteDialog(schedule)
         })
 
-
-        scheduleViewModel = ViewModelProviders.of(this).get(ScheduleViewModel::class.java)
+        scheduleViewModel = ViewModelProvider(this).get(ScheduleViewModel::class.java)
         scheduleViewModel.getAll().observe(this, Observer<List<Schedule>>{ schedule ->
             //Update UI
             adapter.setSchedule(schedule!!)

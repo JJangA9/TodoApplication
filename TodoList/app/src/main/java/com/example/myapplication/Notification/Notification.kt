@@ -11,7 +11,6 @@ import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
 import android.util.Log
-import androidx.core.app.ServiceCompat.stopForeground
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 
@@ -85,7 +84,7 @@ class Notification: BroadcastReceiver(){
                     builder = Notification.Builder(context, channelId)
                             .setSmallIcon(R.drawable.book)
                             .setLargeIcon(BitmapFactory.decodeResource(context.resources,
-                                    R.drawable.conference))
+                                    R.drawable.book))
                             .setAutoCancel(true)
                             .setContentIntent(pendingIntent)
                             .setContentTitle("D - Day")
@@ -102,12 +101,10 @@ class Notification: BroadcastReceiver(){
                         .setContentTitle("D - Day")
                         .setContentText(schedule)
             }
-            Log.d("hoho", id.toString())
             notificationManager.notify(id.toInt(),builder.build())
         } else { //알람을 안받도록 설정했다면
             val id = intent.getLongExtra("id", 0)
             //val tag =
-            Log.d("delete", id.toString())
             notificationManager.cancel("TAG", id.toInt())
         }
 

@@ -36,7 +36,6 @@ class AlarmSetting(context: Context) {
             //실제 달보다 1 작은 숫자로 인식
             val month = date.substring(5, 7).toInt() - 1
 
-            Log.d("alarm add final", alarmData[x-1].id!!.toString())
             calendar.set(date.substring(0, 4).toInt(), month, date.substring(8).toInt(),0, 0, 0)
             am.set(AlarmManager.RTC_WAKEUP, calendar.timeInMillis, sender)
         }
@@ -49,7 +48,6 @@ class AlarmSetting(context: Context) {
         for(x in 1..alarmData.size) {
             intent.putExtra("delete", 1)
             intent.putExtra("id", alarmData[x-1].id)
-            Log.d("alarm delete final", alarmData[x-1].id!!.toString())
 
             sender = PendingIntent.getBroadcast(context, alarmData[x-1].id!!.toInt(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
             am.set(AlarmManager.RTC_WAKEUP, 0, sender)

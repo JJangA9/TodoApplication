@@ -9,7 +9,7 @@ import android.widget.DatePicker
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.Notification.AlarmSetting
 import com.example.myapplication.Notification.App
 import com.example.myapplication.RoomDB.Schedule
@@ -31,7 +31,7 @@ class ScheduleAddActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_schedule_add)
 
-        scheduleViewModel = ViewModelProviders.of(this).get(ScheduleViewModel::class.java)
+        scheduleViewModel = ViewModelProvider(this).get(ScheduleViewModel::class.java)
         //actionbar
         val actionbar = supportActionBar
         //set actionbar title
@@ -192,11 +192,16 @@ class ScheduleAddActivity : AppCompatActivity() {
                                 val alarmData: MutableList<Schedule> = mutableListOf()
 
                                 for (x in 1..insertedData.size) {
-                                    if (insertedData[x - 1].id == newSche.id) { //오늘보다 나중 일정이면 알람 추가
-                                        alarmData.add(insertedData[x - 1])
+                                    if (insertedData[x - 1].id == newSche.id) { //수정된 data의 id 찾기
+                                        if(insertedData[x - 1].date > getTodayDate()) { //오늘보다 나중 일정으로 수정하면 알람 추가
+                                            alarmData.add(insertedData[x - 1])
+                                            AlarmSetting(applicationContext).makeAlarm(alarmData)}
+                                        else {
+                                            alarmData.add(insertedData[x - 1])
+                                            AlarmSetting(applicationContext).deleteAlarm(alarmData)
+                                        }
                                     }
                                 }
-                                AlarmSetting(applicationContext).makeAlarm(alarmData)
                             })
                         } else {}
 
@@ -214,13 +219,9 @@ class ScheduleAddActivity : AppCompatActivity() {
                             val insertedData = schedule
                             val alarmData: MutableList<Schedule> = mutableListOf()
 
-                            //오늘 날짜 가져오기
-                            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
-                            val currentDate = sdf.format(Date())
-
                             if (App.prefs.notification == "Y") {
                                 for (x in 1..insertedData.size) {
-                                    if (insertedData[x - 1].date > currentDate) { //오늘보다 나중 일정이면 알람 추가
+                                    if (insertedData[x - 1].date > getTodayDate()) { //오늘보다 나중 일정이면 알람 추가
                                         alarmData.add(insertedData[x - 1])
                                     }
                                 }
@@ -236,5 +237,12 @@ class ScheduleAddActivity : AppCompatActivity() {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    fun getTodayDate(): String {
+        //오늘 날짜 가져오기
+        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
+        val currentDate = sdf.format(Date())
+        return currentDate
     }
 }
