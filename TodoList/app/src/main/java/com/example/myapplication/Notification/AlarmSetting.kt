@@ -1,13 +1,10 @@
 package com.example.myapplication.Notification
 
 import android.app.AlarmManager
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.example.myapplication.RoomDB.Schedule
-import java.text.SimpleDateFormat
 import java.util.*
 
 class AlarmSetting(context: Context) {

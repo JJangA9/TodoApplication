@@ -29,8 +29,9 @@
         <activity android:name=".MainActivity"/>
         <activity android:name=".ScheduleAddActivity"/>
         <activity android:name=".SettingActivity"/>
+        <activity android:name=".ResetDataAtMidnight"/>
         <receiver android:name=".Notification.Notification"></receiver>
-        <receiver android:name=".SettingActivity$resetReceiver"></receiver>
+        <receiver android:name=".ResetMidnight"></receiver>
     </application>
 
 </manifest>

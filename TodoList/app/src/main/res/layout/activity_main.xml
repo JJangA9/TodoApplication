@@ -33,6 +33,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         ads:adSize="BANNER"
-        ads:adUnitId="@string/admob_test_id"/>
+        ads:adUnitId="@string/admob_advertise"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

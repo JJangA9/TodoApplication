@@ -10,7 +10,6 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
-import android.util.Log
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 
