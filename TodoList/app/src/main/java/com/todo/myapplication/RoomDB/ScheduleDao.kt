@@ -1,9 +1,7 @@
-package com.example.myapplication.RoomDB
+package com.todo.myapplication.RoomDB
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import androidx.room.OnConflictStrategy.REPLACE
-import com.example.myapplication.RoomDB.Schedule
 
 @Dao
 interface ScheduleDao {
