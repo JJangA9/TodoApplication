@@ -2,6 +2,8 @@ package com.todo.myapplication
 
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Switch
 import android.widget.TextView
@@ -25,7 +27,7 @@ class SettingActivity : AppCompatActivity() {
     var versionName = BuildConfig.VERSION_NAME
 
     private lateinit var toggle: Switch
-    private var toggleInit: String = "N"
+    private var toggleInit: String = "Y"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +58,11 @@ class SettingActivity : AppCompatActivity() {
             App.prefs.notification = toggleInit
             notiOnOff(toggleInit)
         })
+
+        gotoWeb.setOnClickListener{
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://yj-development.tistory.com/1"))
+            startActivity(intent)
+        }
     }
 
     fun notiOnOff(noti: String) {

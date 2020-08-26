@@ -11,7 +11,7 @@ class MySharedPreferences(context: Context) {
     val prefs: SharedPreferences = context.getSharedPreferences(PREFS_FILENAME, 0)
 
     var notification: String
-        get() = prefs.getString(PREF_KEY_EDITTEXT, "1")!!
+        get() = prefs.getString(PREF_KEY_EDITTEXT, "Y")!!
         set(value) = prefs.edit().putString(PREF_KEY_EDITTEXT, value).apply()
 
 }
