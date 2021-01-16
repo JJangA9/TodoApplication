@@ -11,11 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.todo.myapplication.Notification.AlarmSetting
-import com.todo.myapplication.Notification.App
 import com.todo.myapplication.RoomDB.Schedule
 import com.todo.myapplication.RoomDB.ScheduleViewModel
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
+import com.todo.myapplication.Notification.MySharedPreferences
 import kotlinx.android.synthetic.main.activity_schedule_add.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -186,7 +186,7 @@ class ScheduleAddActivity : AppCompatActivity() {
                         newSche.id = intent.getLongExtra("id", -1)
                         scheduleViewModel.update(newSche)
 
-                        if (App.prefs.notification == "Y") {
+                        if (MySharedPreferences.notification == "Y") {
                             scheduleViewModel.getAll().observe(this, Observer<List<Schedule>> { schedule ->
                                 val insertedData = schedule
                                 val alarmData: MutableList<Schedule> = mutableListOf()
@@ -219,7 +219,7 @@ class ScheduleAddActivity : AppCompatActivity() {
                             val insertedData = schedule
                             val alarmData: MutableList<Schedule> = mutableListOf()
 
-                            if (App.prefs.notification == "Y") {
+                            if (MySharedPreferences.notification == "Y") {
                                 for (x in 1..insertedData.size) {
                                     if (insertedData[x - 1].date > getTodayDate()) { //오늘보다 나중 일정이면 알람 추가
                                         alarmData.add(insertedData[x - 1])

@@ -1,11 +1,16 @@
 package com.todo.myapplication
 
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Base64
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AlertDialog
 import androidx.lifecycle.Observer
@@ -19,12 +24,15 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.Exception
+import java.security.MessageDigest
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var scheduleViewModel : ScheduleViewModel
     lateinit var adapter: CustomAdapter
 
+    @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -69,6 +77,21 @@ class MainActivity : AppCompatActivity() {
         //일정 추가 floating button 클릭
         fab.setOnClickListener{
             startActivity(Intent(this@MainActivity, ScheduleAddActivity::class.java))
+        }
+
+        try {
+            val info = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+            val signatures = info.signingInfo.apkContentsSigners
+            val md = MessageDigest.getInstance("SHA")
+            for (signature in signatures) {
+                val md: MessageDigest
+                md = MessageDigest.getInstance("SHA")
+                md.update(signature.toByteArray())
+                val key = String(Base64.encode(md.digest(), 0))
+                Log.d("Hash key:", "!!!!!$key!!!!!")
+            }
+        }catch(e: Exception) {
+            Log.e("name not found", e.toString())
         }
 
         //swipe or swap할 경우

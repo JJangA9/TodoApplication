@@ -19,4 +19,15 @@
         android:src="@drawable/splashwriting"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="300dp"/>
+
+    <com.kakao.usermgmt.LoginButton
+        android:id="@+id/kakao_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:layout_marginBottom="30dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"/>
 </RelativeLayout>

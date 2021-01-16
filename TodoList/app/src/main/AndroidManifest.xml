@@ -9,7 +9,7 @@
         android:allowBackup="true"
         android:icon="@drawable/appicon"
         android:label="투두"
-        android:name="com.todo.myapplication.Notification.App"
+        android:name=".GlobalApplication"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -17,14 +17,27 @@
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="@string/admob_app_id"/>
+        <meta-data
+            android:name="com.kakao.sdk.AppKey"
+            android:value="@string/kakao_app_key"/>
         <activity android:name="com.todo.myapplication.SplashActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+            android:name=".GlobalApplication"/>
+        <activity
+            android:name="com.kakao.auth.authorization.authcode.KakaoWebViewActivity"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+
         <activity android:name="com.todo.myapplication.MainActivity"/>
         <activity android:name="com.todo.myapplication.ScheduleAddActivity"/>
         <activity android:name="com.todo.myapplication.SettingActivity"/>

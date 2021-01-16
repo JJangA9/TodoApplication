@@ -10,12 +10,12 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.todo.myapplication.Notification.App
 import com.todo.myapplication.Notification.AlarmSetting
 import com.todo.myapplication.RoomDB.Schedule
 import com.todo.myapplication.RoomDB.ScheduleViewModel
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
+import com.todo.myapplication.Notification.MySharedPreferences
 import kotlinx.android.synthetic.main.activity_setting.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,6 +33,8 @@ class SettingActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_setting)
 
+        MySharedPreferences.init(this)
+
         scheduleViewModel = ViewModelProvider(this).get(ScheduleViewModel::class.java)
         toggle = findViewById(R.id.toggleBtn)
 
@@ -42,7 +44,7 @@ class SettingActivity : AppCompatActivity() {
         MobileAds.initialize(this) {}
         adView3.loadAd(AdRequest.Builder().build())
 
-        if(App.prefs.notification == "Y") {toggle.isChecked = true} // 알람 받기로 설정해놓은 경우 toggle을 true로 설정
+        if(MySharedPreferences.notification == "Y") {toggle.isChecked = true} // 알람 받기로 설정해놓은 경우 toggle을 true로 설정
         else {toggle.isChecked = false}
 
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -55,7 +57,7 @@ class SettingActivity : AppCompatActivity() {
 
         toggle.setOnCheckedChangeListener ({ _, isChecked ->
             toggleInit = if (isChecked) "Y" else "N"
-            App.prefs.notification = toggleInit
+            MySharedPreferences.notification = toggleInit
             notiOnOff(toggleInit)
         })
 
